@@ -1,84 +1,84 @@
 <template>
   <div>
     <div class="header">
-      <drawer width="200px">
+      <drawer width="200px" :show.sync="drawerVisibility">
 
         <!-- drawer conent -->
         <div slot="drawer">
-          <div>drawer conent</div>
+          <group title="Drawer demo(beta)" style="margin-top:20px;">
+            <cell title="Demo" link="/demo" value="演示" @click.native="drawerVisibility = false">
+            </cell>
+            <cell title="Buy me a coffee" link="project/donate" @click.native="drawerVisibility = false">
+            </cell>
+            <cell title="Github" link="http://github.com/airyland/vux" value="Star me" @click.native="drawerVisibility = false">
+            </cell>
+          </group>
         </div>
 
         <!-- main conent -->
+        <x-header v-if="isShowNav" slot="header" style="width:100%;position:absolute;left:0;top:0;z-index:100;"
+          :left-options="leftOptions" :right-options="rightOptions"  :transition="headerTransition"
+          @on-click-more="onClickMore">
+          <span  slot="overwrite-left" @click="drawerVisibility = !drawerVisibility">
+            <x-icon type="navicon" size="35" style="fill:#fff;position:relative;top:-8px;left:-3px;"></x-icon>
+          </span>
+        </x-header>
 
       </drawer>
     </div>
-    <swiper :list="swiperList" :show-desc-mask=false style="width:100%;margin:0;" height="230px" dots-position="center"></swiper>
-    <div class="news-list">
-      <div class="date-title">今日热闻</div>
-      <div class="card-wrap" v-for="(item, index) in newsList" :key="index" @click="viewContent(item.id)">
-        <div class="card">
-          <div class="card-title">{{item.title}}</div>
-          <div class="card-img-wrap">
-            <img class="card-img" :src="item.image"></img>
-          </div>
-        </div>
-      </div>
-    </div>
+    <keep-alive>
+      <transition>
+        <router-view></router-view>
+      </transition>
+    </keep-alive>
   </div>
 </template>
 
 <script>
   import {
     Drawer,
-    Swiper,
-    XHeader
+    XHeader,
+    Group,
+    Cell,
   } from "vux";
-  import {
-    getLatestNews,
-  } from '@/api/api'
   export default {
     name: "Home",
     components: {
       Drawer,
-      Swiper,
-      XHeader
+      XHeader,
+      Group,
+      Cell,
     },
     data() {
       return {
-        swiperList: [],
-        newsList: []
+        drawerVisibility: true
       };
     },
-    created() {
-      this.getList()
-    },
+    created() {},
     methods: {
-      getList() {
-        getLatestNews().then(res => {
-          this.swiperList = res.top_stories.map((item, index) => {
-            return {
-              url: 'javascript:',
-              img: item.image.replace(/http\w{0,1}:\/\/p/g, 'https://images.weserv.nl/?url=p'),
-              title: item.title
-            }
-          })
-          this.newsList = res.stories.map((item, index) => {
-            return {
-              id: item.id,
-              image: item.images[0].replace(/http\w{0,1}:\/\/p/g, 'https://images.weserv.nl/?url=p'),
-              title: item.title
-            }
-          });
-        })
+      isShowNav() {
+        if (this.entryUrl.indexOf('hide-nav') > -1) {
+          return false
+        }
+        return true
       },
-      viewContent(id) {
-        this.$router.push({
-          name: 'Page',
-          params: {
-            id: id
-          }
-        })
-      }
+      leftOptions() {
+        return {
+          showBack: ""
+        }
+      },
+      rightOptions() {
+        return {
+          showMore: true
+        }
+      },
+      headerTransition() {
+        if (!this.direction) return ''
+        return this.direction === 'forward' ? 'vux-header-fade-in-right' : 'vux-header-fade-in-left'
+      },
+      onClickMore() {
+        this.showMenu = true
+      },
     }
   };
 
@@ -89,57 +89,6 @@
   .header {
     height: 112px;
     background-color: #00a2ed;
-  }
-
-  .news-list {
-    background-color: #f3f3f3;
-
-    .date-title {
-      height: 105px;
-      line-height: 105px;
-      padding-left: 30px;
-      color: #757575;
-      font-size: 28px;
-      text-align: left;
-    }
-
-    .card-wrap {
-      height: 200px;
-      padding: 16px;
-
-      .card {
-        // width: 100%;
-        height: 100%;
-        background-color: #fff;
-        border-radius: 8px;
-        display: flex;
-
-        .card-title {
-          width: 460px;
-          font-size: 34px;
-          color: #000;
-          text-align: left;
-          padding: 32px 36px;
-        }
-
-        .card-img-wrap {
-          width: 228px;
-          padding: 26px 32px;
-
-          .card-img {
-            width: 164px;
-            height: 144px;
-          }
-        }
-      }
-    }
-  }
-
-</style>
-<style>
-  .vux-swiper-desc {
-    font-size: 38px !important;
-    padding-bottom: 45px !important;
   }
 
 </style>

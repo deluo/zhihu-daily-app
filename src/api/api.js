@@ -15,7 +15,7 @@ export function getLatestNews(){
 /**获取消息内容 */
 export function getNewsById (id) {
     return new Promise((resolve,reject)=>{
-        axios.get("https://news-at.zhihu.com/api/4/news/"+id).then(res=>{
+        axios.get("/api/4/news/"+id).then(res=>{
             resolve(res.data)
         })
     })
